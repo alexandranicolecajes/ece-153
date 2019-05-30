@@ -1,19 +1,3 @@
-/*
- *  Copyright (c) 2015 Ryan McCullagh <me@ryanmccullagh.com>
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +8,7 @@
 #include "ast.h"
 #include "stack.h"
 
-#define D_NAME_SIZE 16
+#define D_NAME_SIZE 100
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
@@ -105,10 +89,6 @@ int match(parser_t* self, char c)
 static void parse_factor(parser_t* self, BTree* ast);
 static BTree* make_binary_op(OPType op, BTree* left, BTree* right);
 static void parse_term(parser_t* self, BTree* ast);
-
-/*
- * {Expression  Term {+Term} }
- */
 static void parse_expression(parser_t* self, BTree* ast);
 
 static bool parser_is_keyword(char* name) 
@@ -167,9 +147,7 @@ static inline void parser_syntax_error(parser_t* self, const char* s)
 	exit(1);
 }
 
-/*
- * <ident> ::= <letter> [ <letter> | <digit> ]*
- */
+
 static char* parser_parse_name(parser_t* self)
 {
 	int buffer_size = D_NAME_SIZE;
@@ -196,9 +174,7 @@ static char* parser_parse_name(parser_t* self)
 	return buffer;
 }
 
-/*
- * <number ::= [<digit>]+
- */
+
 static inline void parser_parse_number(parser_t* self)
 {
 	while(isdigit((int)self->look)) {
@@ -215,10 +191,7 @@ static inline void parser_skip_comma(parser_t* self)
 	}
 }
 
-/*
- * {Assignment  Variable = Expression}
- *  <Ident> = <Expression>
- */
+
 
 static BTree* make_const_value(parser_t* self)
 {
@@ -348,37 +321,9 @@ void parse_assignment(parser_t* self)
 	parse_expression(self, self->ast->right);
 	n->right = stack_pop(&self->stack);
 	self->ast = n;	
-	
-	
-	/*Token t = lexer_lex(self);
-	if(t == T_IDEN) {
-		BTree* node = new_empty_node();
-		Value* value = value_new_variable(parser_parse_name(self));
-		node->left = NULL;
-		node->right = NULL;
-		node->value = value;
-		self->ast = node;
-		//stack_push(&self->stack, node);
-		match(self, '=');
-		BTree* n = new_empty_node();
-		Value* v = value_new_operation(OP_ASSIGN);
-		n->value = v;
-		n->left = self->ast;
-		
-		parse_expression(self, self->ast->right);
-		n->right = stack_pop(&self->stack);
-		self->ast = n;	
-	} else {
-		expected(self, "T_IDEN");
-		//parser_syntax_error(self, "invalid left hand assignment");
-	}*/
 }
 
 
-
-/*
- * factor = ident | number | "(" expression ")"
- */
 static void parse_factor(parser_t* self, BTree* ast)
 {
 	Token t = lexer_lex(self);
@@ -422,9 +367,7 @@ static void parse_term(parser_t* self, BTree* ast)
 	}
 }
 
-/*
- * {Expression  Term {+Term} }
- */
+
 static void parse_expression(parser_t* self, BTree* ast)
 {
 	parse_term(self, ast);
