@@ -1,21 +1,11 @@
-#ifndef __LEX_H__
-#define __LEX_H__
+#define EOI 
+#define SEMI 
+#define PLUS 
+#define TIMES
+#define LP
+#define RP
+#define NUM_OR_ID
 
-typedef struct parser_t parser_t;
-
-typedef enum Token {
-	T_ILLEGAL,
-	T_MUL,
-	T_DIV,
-	T_PLUS,
-	T_MINUS,
-	T_IDEN,
-	T_NUM,
-	T_ASSIGN,
-	T_OPAREN,
-	T_CPAREN
-} Token;
-
-Token lexer_lex(parser_t* self);
-
-#endif
+extern char *yytext; 
+extern int yyleng;
+extern int yylineno; 
