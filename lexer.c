@@ -1,68 +1,81 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "lexer.h"
-#include "parser.h"
+#include <stdio.h>
+#include <ctype.h>
 
-Token lexer_lex(parser_t* self) 
+char *text = "";
+int leng = 0;
+int lineno = 0;
+
+lexer()
 {
-	if(self->look == '=') {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_ASSIGN;
-		return T_ASSIGN;
+	static char input_buffer[128];
+	char *current;
 
-	} else if(self->look == '+') {
-		self->last_token = self->current_token;
-		self->current_token = T_PLUS;	
-		return T_PLUS; 
-	
-	} else if(self->look == '*') {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_MUL;
-		return T_MUL;
-	
-	} else if(self->look == '/') {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_DIV;
-		return T_DIV;
+	current = yytext + yyleng;
 
-	} else if(self->look == '-') { 
+	while (1)
+	{
+		while(!*current)
+		{
+			current = input_buffer;
+			if ( !gets(input_buffer) )
+			{
+				*current = '\0';
+				return EIO;
+			}
 
-		self->last_token = self->current_token;
-		self->current_token = T_MINUS;
-		return T_MINUS; 
-	
-	} else if((isalpha((int)self->look)) || (self->look == '_')) {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_IDEN;
-		return T_IDEN;
-	
-	} else if(isdigit((int)self->look)) {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_NUM;
-		return T_NUM;
-	
-	} else if(self->look == '(') {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_OPAREN;
-		return T_OPAREN;
-	
-	} else if(self->look == ')') {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_CPAREN;
-		return T_CPAREN;
-		
-	} else {
-		
-		self->last_token = self->current_token;
-		self->current_token = T_ILLEGAL;
-		return T_ILLEGAL;
+			++lineno;
+
+			while( isspace(*current))
+				++current;
+		}
+
+		for ( ;*current ; ++current)
+		{
+			text = current;
+			leng = 1;
+
+			switch(*current)
+			{
+				case EOF : return EOI ;
+				case ';' : return SEMI ;
+				case '+' : return PLUS ;
+				case '*' : return TIMES ;
+				case '(' : return LP ;
+				case ')' : return RP ;
+
+				case '\n' : 
+				case '\t' : 
+				case ' ' : break;
+
+				default:
+				if( !isalnum(*current))
+					fprintf(stderr, "Ignoring illegal input <%c>\n", *current );
+				else
+				{
+					while (isalnum (*current))
+						++current;
+
+					leng = current - text;
+					return NUM_OR_ID;
+				}
+				break;
+			}
+		}
 	}
+
+static int Lookahead = -1;
+
+int match (token)
+int token;
+{
+	if (Lookahead == -1)
+		Lookahead = lexer();
+
+	return token == Lookahead;
+}
+
+void advance ()
+{
+	Lookahead = lexer();
 }
